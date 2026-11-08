@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Xadrez Fundo Preto vs Robô</title>
+    <!-- CSS do Chessboard.js -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #121212;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --button-hover: #0ea5e9;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        #board {
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 20px;
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #222;
+        }
+
+        /* Cores modernas para as casas do tabuleiro */
+        .white-1e1d7 {
+            background-color: #e2e8f0 !important;
+            color: #e2e8f0 !important;
+        }
+        .black-3c85d {
+            background-color: #475569 !important;
+            color: #475569 !important;
+        }
+
+        /* Destaque para as casas onde a peça pode ir */
+        .highlight {
+            box-shadow: inset 0 0 3px 3px rgba(56, 189, 248, 0.7);
+        }
+
+        .info {
+            background: var(--card-bg);
+            padding: 18px 22px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #status {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 0 15px 0;
+            color: #cbd5e1;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #000000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Xadrez Moderno</h1>
+    
+    <!-- Tabuleiro -->
+    <div id="board"></div>
+
+    <!-- Informações e Controles -->
+    <div class="info">
+        <p id="status">Sua vez (Brancas)</p>
+        <button id="resetBtn">Nova Partida</button>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Chess.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <!-- Chessboard.js -->
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+    <script>
+        var board = null;
+        var game = new Chess();
+        var statusEl = $('#status');
+        var selectedSquare = null;
+        var graySquares = [];
+
+        function removeHighlights() {
+            $('#board .square-55d63').removeClass('highlight');
+            graySquares = [];
+        }
+
+        function greySquare(square) {
+            var $square = $('#board .square-' + square);
+            $square.addClass('highlight');
+            graySquares.push(square);
+        }
+
+        function makeSmartMove() {
+            var possibleMoves = game.moves({ verbose: true });
+
+            if (possibleMoves.length === 0 || game.game_over()) return;
+
+            var captures = possibleMoves.filter(function(move) {
+                return move.captured;
+            });
+
+            var chosenMove;
+            if (captures.length > 0 && Math.random() < 0.85) {
+                var randomCaptureIdx = Math.floor(Math.random() * captures.length);
+                chosenMove = captures[randomCaptureIdx];
+            } else {
+                var randomIdx = Math.floor(Math.random() * possibleMoves.length);
+                chosenMove = possibleMoves[randomIdx];
+            }
+
+            game.move(chosenMove);
+            board.position(game.fen());
+            updateStatus();
+        }
+
+        function onSquareClick(square) {
+            if (selectedSquare !== null) {
+                var move = game.move({
+                    from: selectedSquare,
+                    to: square,
+                    promotion: 'q'
+                });
+
+                if (move !== null) {
+                    board.position(game.fen());
+                    removeHighlights();
+                    selectedSquare = null;
+                    updateStatus();
+
+                    if (!game.game_over()) {
+                        statusEl.text('Robô pensando...');
+                        window.setTimeout(makeSmartMove, 400);
+                    }
+                    return;
+                }
+            }
+
+            var piece = game.get(square);
+            if (piece !== null && piece.color === 'w') {
+                selectedSquare = square;
+
+                var moves = game.moves({
+                    square: square,
+                    verbose: true
+                });
+
+                if (moves.length === 0) {
+                    removeHighlights();
+                    selectedSquare = null;
+                    return;
+                }
+
+                removeHighlights();
+                greySquare(square);
+                for (var i = 0; i < moves.length; i++) {
+                    greySquare(moves[i].to);
+                }
+            } else {
+                removeHighlights();
+                selectedSquare = null;
+            }
+        }
+
+        function onDrop(source, target) {
+            removeHighlights();
+            selectedSquare = null;
+
+            if (game.turn() === 'b') return 'snapback';
+
+            var move = game.move({
+                from: source,
+                to: target,
+                promotion: 'q'
+            });
+
+            if (move === null) return 'snapback';
+
+            updateStatus();
+
+            if (!game.game_over()) {
+                statusEl.text('Robô pensando...');
+                window.setTimeout(makeSmartMove, 400);
+            }
+        }
+
+        function updateStatus() {
+            var status = '';
+            var moveColor = (game.turn() === 'w') ? 'Brancas' : 'Pretas';
+
+            if (game.in_checkmate()) {
+                status = 'Fim de jogo! Xeque-mate. ' + (game.turn() === 'w' ? 'Pretas' : 'Brancas') + ' venceram!';
+            } else if (game.in_draw()) {
+                status = 'Fim de jogo! Empate.';
+            } else {
+                status = (game.turn() === 'w') ? 'Sua vez (Brancas)' : 'Vez do Robô (Pretas)';
+                if (game.in_check()) {
+                    status += ' — ' + moveColor + ' em XEQUE!';
+                }
+            }
+
+            statusEl.text(status);
+        }
+
+        var config = {
+            draggable: true,
+            position: 'start',
+            onDrop: onDrop,
+            onSquareClick: onSquareClick,
+            pieceTheme: 'https://chessboardjs.com/img/chesspieces/alpha/{piece}.png'
+        };
+
+        board = Chessboard('board', config);
+        updateStatus();
+
+        $('#resetBtn').on('click', function () {
+            game.reset();
+            board.start();
+            removeHighlights();
+            selectedSquare = null;
+            updateStatus();
+        });
+
+        $(window).resize(function() {
+            board.resize();
+        });
+    </script>
+</body>
+</html>
