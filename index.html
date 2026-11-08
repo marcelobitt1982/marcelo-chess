@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Xadrez Fundo Preto vs Robô</title>
+    <title>Xadre</title>
     <!-- CSS do Chessboard.js -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
@@ -72,26 +72,54 @@
             max-width: 420px;
             box-sizing: border-box;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         #status {
             font-size: 16px;
             font-weight: 500;
-            margin: 0 0 15px 0;
+            margin: 0;
             color: #cbd5e1;
         }
 
-        button {
+        .controls-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #94a3b8;
+        }
+
+        select, button {
             background-color: var(--accent-color);
             color: #000000;
             border: none;
-            padding: 12px 20px;
+            padding: 10px 14px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             width: 100%;
             transition: background-color 0.2s, transform 0.1s;
+            box-sizing: border-box;
+        }
+
+        select {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
         }
 
         button:hover {
@@ -104,8 +132,15 @@
     </style>
 </head>
 <body>
+    <!-- Player de Áudio -->
+    <div class="audio-player-container" style="margin-bottom: 10px;">
+        <audio controls loop>
+            <source src="audio/starwars-theme.mp3" type="audio/mpeg">
+            Seu navegador não suporta o elemento de áudio.
+        </audio>
+    </div>
 
-    <h1>Xadrez Moderno</h1>
+    <h1>MARCELO CHESS</h1>
     
     <!-- Tabuleiro -->
     <div id="board"></div>
@@ -113,7 +148,20 @@
     <!-- Informações e Controles -->
     <div class="info">
         <p id="status">Sua vez (Brancas)</p>
-        <button id="resetBtn">Nova Partida</button>
+        
+        <div class="controls-row">
+            <div class="control-group">
+                <label for="playerColor">Sua Cor:</label>
+                <select id="playerColor">
+                    <option value="w" selected>Brancas</option>
+                    <option value="b">Pretas</option>
+                </select>
+            </div>
+            <div class="control-group" style="justify-content: flex-end;">
+                <label>&nbsp;</label>
+                <button id="resetBtn">Nova Partida</button>
+            </div>
+        </div>
     </div>
 
     <!-- jQuery -->
@@ -129,6 +177,7 @@
         var statusEl = $('#status');
         var selectedSquare = null;
         var graySquares = [];
+        var playerColor = 'w'; // 'w' para brancas, 'b' para pretas
 
         function removeHighlights() {
             $('#board .square-55d63').removeClass('highlight');
@@ -162,9 +211,24 @@
             game.move(chosenMove);
             board.position(game.fen());
             updateStatus();
+
+            // Se ainda não acabou e for a vez do robô novamente (caso jogue sozinho)
+            if (!game.game_over() && game.turn() !== playerColor) {
+                window.setTimeout(makeSmartMove, 400);
+            }
+        }
+
+        function maybeTriggerRobot() {
+            if (!game.game_over() && game.turn() !== playerColor) {
+                statusEl.text('Robô pensando...');
+                window.setTimeout(makeSmartMove, 400);
+            }
         }
 
         function onSquareClick(square) {
+            // Se for a vez do robô, ignora cliques
+            if (game.turn() !== playerColor) return;
+
             if (selectedSquare !== null) {
                 var move = game.move({
                     from: selectedSquare,
@@ -177,17 +241,14 @@
                     removeHighlights();
                     selectedSquare = null;
                     updateStatus();
-
-                    if (!game.game_over()) {
-                        statusEl.text('Robô pensando...');
-                        window.setTimeout(makeSmartMove, 400);
-                    }
+                    maybeTriggerRobot();
                     return;
                 }
             }
 
             var piece = game.get(square);
-            if (piece !== null && piece.color === 'w') {
+            // Verifica se a peça clicada pertence ao jogador atual
+            if (piece !== null && piece.color === playerColor) {
                 selectedSquare = square;
 
                 var moves = game.moves({
@@ -216,7 +277,8 @@
             removeHighlights();
             selectedSquare = null;
 
-            if (game.turn() === 'b') return 'snapback';
+            // Impede mover se não for a vez do jogador
+            if (game.turn() !== playerColor) return 'snapback';
 
             var move = game.move({
                 from: source,
@@ -227,29 +289,42 @@
             if (move === null) return 'snapback';
 
             updateStatus();
-
-            if (!game.game_over()) {
-                statusEl.text('Robô pensando...');
-                window.setTimeout(makeSmartMove, 400);
-            }
+            maybeTriggerRobot();
         }
 
         function updateStatus() {
             var status = '';
+            var isMyTurn = (game.turn() === playerColor);
             var moveColor = (game.turn() === 'w') ? 'Brancas' : 'Pretas';
 
             if (game.in_checkmate()) {
-                status = 'Fim de jogo! Xeque-mate. ' + (game.turn() === 'w' ? 'Pretas' : 'Brancas') + ' venceram!';
+                var winner = (game.turn() === 'w') ? 'Pretas' : 'Brancas';
+                status = 'Fim de jogo! Xeque-mate. ' + winner + ' venceram!';
             } else if (game.in_draw()) {
                 status = 'Fim de jogo! Empate.';
             } else {
-                status = (game.turn() === 'w') ? 'Sua vez (Brancas)' : 'Vez do Robô (Pretas)';
+                status = isMyTurn ? 'Sua vez (' + (playerColor === 'w' ? 'Brancas' : 'Pretas') + ')' : 'Vez do Robô';
                 if (game.in_check()) {
                     status += ' — ' + moveColor + ' em XEQUE!';
                 }
             }
 
             statusEl.text(status);
+        }
+
+        function resetGame() {
+            playerColor = $('#playerColor').val();
+            game.reset();
+            board.orientation(playerColor === 'w' ? 'white' : 'black');
+            board.start();
+            removeHighlights();
+            selectedSquare = null;
+            updateStatus();
+
+            // Se o jogador escolheu Pretas, o robô (Brancas) começa jogando
+            if (playerColor === 'b') {
+                maybeTriggerRobot();
+            }
         }
 
         var config = {
@@ -261,15 +336,12 @@
         };
 
         board = Chessboard('board', config);
-        updateStatus();
+        
+        // Eventos
+        $('#resetBtn').on('click', resetGame);
+        $('#playerColor').on('change', resetGame);
 
-        $('#resetBtn').on('click', function () {
-            game.reset();
-            board.start();
-            removeHighlights();
-            selectedSquare = null;
-            updateStatus();
-        });
+        updateStatus();
 
         $(window).resize(function() {
             board.resize();
