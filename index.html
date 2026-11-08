@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Marcelo Chess - Modern Edition</title>
+    <title>Marcelo Chess - Marble Edition</title>
     <!-- CSS do Chessboard.js -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
         :root {
-            --bg-color: #09090b;
-            --card-bg: rgba(24, 24, 27, 0.75);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-color: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --accent-color: #06b6d4;
-            --accent-hover: #22d3ee;
-            --accent-glow: rgba(6, 182, 212, 0.35);
+            --bg-color: #000000;
+            --card-bg: rgba(18, 18, 18, 0.9);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --accent-glow: rgba(56, 189, 248, 0.4);
         }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 100%, rgba(147, 51, 234, 0.05) 0%, transparent 50%);
             color: var(--text-color);
             display: flex;
             flex-direction: column;
@@ -38,55 +35,55 @@
         h1 {
             font-size: 26px;
             font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
         }
 
-        /* Container do Tabuleiro com Sombra Neon Fluida */
+        /* Container do Tabuleiro */
         #board {
             width: 100%;
             max-width: 420px;
-            margin-bottom: 20px;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(6, 182, 212, 0.15);
-            border-radius: 14px;
+            margin-bottom: 15px;
+            box-shadow: 0 25px 50px -12px rgba(255, 255, 255, 0.08), 0 0 30px rgba(56, 189, 248, 0.15);
+            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Cores modernas das casas do xadrez */
+        /* Textura e Cores de Mármore para as casas do xadrez */
         .white-1e1d7 {
-            background-color: #cbd5e1 !important;
+            background-color: #e2e8f0 !important; /* Mármore Claro / Branco Suave */
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(203, 213, 225, 0.6) 100%);
         }
         .black-3c85d {
-            background-color: #334155 !important;
+            background-color: #334155 !important; /* Mármore Escuro / Grafite Elegante */
+            background-image: radial-gradient(circle, rgba(51, 65, 85, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
         }
 
-        /* Efeito de Destaque Animado Moderno */
+        /* Destaque Moderno em Neon Animado */
         @keyframes pulseGlow {
-            0% { box-shadow: inset 0 0 0 3px var(--accent-color), 0 0 10px var(--accent-glow); }
-            50% { box-shadow: inset 0 0 0 5px var(--accent-hover), 0 0 20px var(--accent-glow); }
-            100% { box-shadow: inset 0 0 0 3px var(--accent-color), 0 0 10px var(--accent-glow); }
+            0% { box-shadow: inset 0 0 0 3px var(--accent-color), 0 0 12px var(--accent-glow); }
+            50% { box-shadow: inset 0 0 0 6px var(--accent-hover), 0 0 22px var(--accent-glow); }
+            100% { box-shadow: inset 0 0 0 3px var(--accent-color), 0 0 12px var(--accent-glow); }
         }
 
         .highlight {
-            animation: pulseGlow 1.5s infinite ease-in-out;
-            background-color: rgba(6, 182, 212, 0.25) !important;
+            animation: pulseGlow 1.4s infinite ease-in-out;
+            background-color: rgba(56, 189, 248, 0.35) !important;
         }
 
         /* Painel de Informações Estilo Glassmorphism */
         .info {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 20px 24px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 18px 22px;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
             text-align: center;
             width: 100%;
             max-width: 420px;
@@ -94,51 +91,55 @@
             border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
         #status {
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             margin: 0;
             color: var(--text-muted);
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
         }
 
-        .controls-row {
-            display: flex;
-            gap: 12px;
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
         .control-group {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            flex: 1;
+        }
+
+        .control-group.full-width {
+            grid-column: span 2;
         }
 
         .control-group label {
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 10px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            letter-spacing: 0.8px;
+            margin-bottom: 4px;
             color: var(--text-muted);
         }
 
         select, button {
             background-color: var(--accent-color);
-            color: #09090b;
+            color: #000000;
             border: none;
-            padding: 11px 16px;
+            padding: 10px 14px;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             width: 100%;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             box-sizing: border-box;
-            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
         }
 
         select {
@@ -149,31 +150,31 @@
         }
 
         select option {
-            background-color: #18181b;
+            background-color: #121212;
             color: var(--text-color);
         }
 
         button:hover {
             background-color: var(--accent-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
         }
 
         button:active {
             transform: translateY(0);
         }
 
-        /* Player de áudio minimalista integrado */
+        /* Player de Áudio minimalista */
         .audio-container {
-            margin-bottom: 12px;
-            opacity: 0.8;
+            margin-bottom: 10px;
+            opacity: 0.75;
             transition: opacity 0.2s;
         }
         .audio-container:hover {
             opacity: 1;
         }
         audio {
-            height: 32px;
+            height: 28px;
             border-radius: 8px;
         }
     </style>
@@ -196,7 +197,7 @@
     <div class="info">
         <p id="status">Sua vez (Brancas)</p>
         
-        <div class="controls-row">
+        <div class="controls-grid">
             <div class="control-group">
                 <label for="playerColor">Sua Cor</label>
                 <select id="playerColor">
@@ -204,8 +205,17 @@
                     <option value="b">Pretas</option>
                 </select>
             </div>
-            <div class="control-group" style="justify-content: flex-end;">
-                <label>&nbsp;</label>
+            
+            <div class="control-group">
+                <label for="difficulty">Dificuldade</label>
+                <select id="difficulty">
+                    <option value="easy">Fácil</option>
+                    <option value="medium" selected>Médio</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </div>
+
+            <div class="control-group full-width">
                 <button id="resetBtn">Nova Partida</button>
             </div>
         </div>
@@ -225,6 +235,7 @@
         var selectedSquare = null;
         var graySquares = [];
         var playerColor = 'w';
+        var difficulty = 'medium';
 
         function removeHighlights() {
             $('#board .square-55d63').removeClass('highlight');
@@ -237,22 +248,81 @@
             graySquares.push(square);
         }
 
+        function evaluateBoard(boardState) {
+            var totalEvaluation = 0;
+            var boardArray = boardState.board();
+            for (var r = 0; r < 8; r++) {
+                for (var c = 0; c < 8; c++) {
+                    var piece = boardArray[r][c];
+                    if (piece !== null) {
+                        totalEvaluation += getPieceValue(piece);
+                    }
+                }
+            }
+            return totalEvaluation;
+        }
+
+        function getPieceValue(piece) {
+            var value = 0;
+            switch (piece.type) {
+                case 'p': value = 10; break;
+                case 'r': value = 50; break;
+                case 'n': value = 30; break;
+                case 'b': value = 30; break;
+                case 'q': value = 90; break;
+                case 'k': value = 900; break;
+            }
+            return piece.color === 'w' ? value : -value;
+        }
+
         function makeSmartMove() {
             var possibleMoves = game.moves({ verbose: true });
-
             if (possibleMoves.length === 0 || game.game_over()) return;
 
-            var captures = possibleMoves.filter(function(move) {
-                return move.captured;
-            });
-
             var chosenMove;
-            if (captures.length > 0 && Math.random() < 0.85) {
-                var randomCaptureIdx = Math.floor(Math.random() * captures.length);
-                chosenMove = captures[randomCaptureIdx];
-            } else {
+            var diff = $('#difficulty').val();
+
+            if (diff === 'easy') {
                 var randomIdx = Math.floor(Math.random() * possibleMoves.length);
                 chosenMove = possibleMoves[randomIdx];
+            } 
+            else if (diff === 'medium') {
+                var captures = possibleMoves.filter(function(move) {
+                    return move.captured;
+                });
+                if (captures.length > 0 && Math.random() < 0.85) {
+                    chosenMove = captures[Math.floor(Math.random() * captures.length)];
+                } else {
+                    chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                }
+            } 
+            else {
+                var bestValue = (game.turn() === 'w') ? -99999 : 99999;
+                var bestMoves = [];
+
+                for (var i = 0; i < possibleMoves.length; i++) {
+                    var move = possibleMoves[i];
+                    game.move(move);
+                    var value = evaluateBoard(game);
+                    game.undo();
+
+                    if (game.turn() === 'w') {
+                        if (value > bestValue) {
+                            bestValue = value;
+                            bestMoves = [move];
+                        } else if (value === bestValue) {
+                            bestMoves.push(move);
+                        }
+                    } else {
+                        if (value < bestValue) {
+                            bestValue = value;
+                            bestMoves = [move];
+                        } else if (value === bestValue) {
+                            bestMoves.push(move);
+                        }
+                    }
+                }
+                chosenMove = bestMoves[Math.floor(Math.random() * bestMoves.length)] || possibleMoves[0];
             }
 
             game.move(chosenMove);
@@ -339,6 +409,7 @@
 
         function resetGame() {
             playerColor = $('#playerColor').val();
+            difficulty = $('#difficulty').val();
             game.reset();
             board.orientation(playerColor === 'w' ? 'white' : 'black');
             board.start();
@@ -354,12 +425,11 @@
         var config = {
             draggable: false,
             position: 'start',
-            pieceTheme: 'https://chessboardjs.com/img/chesspieces/alpha/{piece}.png'
+            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         };
 
         board = Chessboard('board', config);
 
-        // Captura cliques em computadores e celulares perfeitamente
         $(document).on('click', '#board .square-55d63, #board img', function(e) {
             e.stopPropagation();
             var $squareDiv = $(this).hasClass('square-55d63') ? $(this) : $(this).closest('.square-55d63');
@@ -369,9 +439,11 @@
             }
         });
 
-        // Eventos
         $('#resetBtn').on('click', resetGame);
         $('#playerColor').on('change', resetGame);
+        $('#difficulty').on('change', function() {
+            difficulty = $(this).val();
+        });
 
         updateStatus();
 
