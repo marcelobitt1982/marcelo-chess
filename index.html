@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Marcelo Chess</title>
+    <title>Marcelo Chess - Marble Edition</title>
     <!-- CSS do Chessboard.js -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
@@ -56,11 +56,11 @@
 
         /* Textura e Cores de Mármore para as casas do xadrez */
         .white-1e1d7 {
-            background-color: #e2e8f0 !important; /* Mármore Claro / Branco Suave */
+            background-color: #e2e8f0 !important;
             background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(203, 213, 225, 0.6) 100%);
         }
         .black-3c85d {
-            background-color: #334155 !important; /* Mármore Escuro / Grafite Elegante */
+            background-color: #334155 !important;
             background-image: radial-gradient(circle, rgba(51, 65, 85, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
         }
 
@@ -184,7 +184,7 @@
     <div class="audio-container">
         <audio controls loop>
             <source src="audio/starwars-theme.mp3" type="audio/mpeg">
-            Seu navegador não suporta o elemento de áudio.
+            Your browser does not support the audio element.
         </audio>
     </div>
 
@@ -195,28 +195,28 @@
 
     <!-- Informações e Controles -->
     <div class="info">
-        <p id="status">Sua vez (Brancas)</p>
+        <p id="status">Your turn (White)</p>
         
         <div class="controls-grid">
             <div class="control-group">
-                <label for="playerColor">Sua Cor</label>
+                <label for="playerColor">Your Side</label>
                 <select id="playerColor">
-                    <option value="w" selected>Brancas</option>
-                    <option value="b">Pretas</option>
+                    <option value="w" selected>White</option>
+                    <option value="b">Black</option>
                 </select>
             </div>
             
             <div class="control-group">
-                <label for="difficulty">Dificuldade</label>
+                <label for="difficulty">Difficulty</label>
                 <select id="difficulty">
-                    <option value="easy">Fácil</option>
-                    <option value="medium" selected>Médio</option>
-                    <option value="hard">Difícil</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
                 </select>
             </div>
 
             <div class="control-group full-width">
-                <button id="resetBtn">Nova Partida</button>
+                <button id="resetBtn">New Game</button>
             </div>
         </div>
     </div>
@@ -336,7 +336,7 @@
 
         function maybeTriggerRobot() {
             if (!game.game_over() && game.turn() !== playerColor) {
-                statusEl.text('Robô pensando...');
+                statusEl.text('Robot is thinking...');
                 window.setTimeout(makeSmartMove, 400);
             }
         }
@@ -390,17 +390,18 @@
         function updateStatus() {
             var status = '';
             var isMyTurn = (game.turn() === playerColor);
-            var moveColor = (game.turn() === 'w') ? 'Brancas' : 'Pretas';
+            var moveColor = (game.turn() === 'w') ? 'White' : 'Black';
 
             if (game.in_checkmate()) {
-                var winner = (game.turn() === 'w') ? 'Pretas' : 'Brancas';
-                status = 'Fim de jogo! Xeque-mate. ' + winner + ' venceram!';
+                var winner = (game.turn() === 'w') ? 'Black' : 'White';
+                status = 'Game over! Checkmate. ' + winner + ' wins!';
             } else if (game.in_draw()) {
-                status = 'Fim de jogo! Empate.';
+                status = 'Game over! Draw.';
             } else {
-                status = isMyTurn ? 'Sua vez (' + (playerColor === 'w' ? 'Brancas' : 'Pretas') + ')' : 'Vez do Robô';
+                var sideName = (playerColor === 'w') ? 'White' : 'Black';
+                status = isMyTurn ? 'Your turn (' + sideName + ')' : "Robot's turn";
                 if (game.in_check()) {
-                    status += ' — ' + moveColor + ' em XEQUE!';
+                    status += ' — ' + moveColor + ' is in CHECK!';
                 }
             }
 
