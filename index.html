@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Xadre</title>
+    <title>MARCELO CHESS</title>
     <!-- CSS do Chessboard.js -->
     <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
@@ -59,7 +59,8 @@
 
         /* Destaque para as casas onde a peça pode ir */
         .highlight {
-            box-shadow: inset 0 0 3px 3px rgba(56, 189, 248, 0.7);
+            box-shadow: inset 0 0 4px 4px rgba(56, 189, 248, 0.8);
+            background-color: rgba(56, 189, 248, 0.3) !important;
         }
 
         .info {
@@ -177,7 +178,7 @@
         var statusEl = $('#status');
         var selectedSquare = null;
         var graySquares = [];
-        var playerColor = 'w'; // 'w' para brancas, 'b' para pretas
+        var playerColor = 'w';
 
         function removeHighlights() {
             $('#board .square-55d63').removeClass('highlight');
@@ -212,7 +213,6 @@
             board.position(game.fen());
             updateStatus();
 
-            // Se ainda não acabou e for a vez do robô novamente (caso jogue sozinho)
             if (!game.game_over() && game.turn() !== playerColor) {
                 window.setTimeout(makeSmartMove, 400);
             }
@@ -226,9 +226,9 @@
         }
 
         function onSquareClick(square) {
-            // Se for a vez do robô, ignora cliques
             if (game.turn() !== playerColor) return;
 
+            // Se já tem uma peça selecionada, tenta mover para a casa clicada
             if (selectedSquare !== null) {
                 var move = game.move({
                     from: selectedSquare,
@@ -246,8 +246,8 @@
                 }
             }
 
+            // Seleciona a peça se for do jogador
             var piece = game.get(square);
-            // Verifica se a peça clicada pertence ao jogador atual
             if (piece !== null && piece.color === playerColor) {
                 selectedSquare = square;
 
@@ -273,25 +273,6 @@
             }
         }
 
-        function onDrop(source, target) {
-            removeHighlights();
-            selectedSquare = null;
-
-            // Impede mover se não for a vez do jogador
-            if (game.turn() !== playerColor) return 'snapback';
-
-            var move = game.move({
-                from: source,
-                to: target,
-                promotion: 'q'
-            });
-
-            if (move === null) return 'snapback';
-
-            updateStatus();
-            maybeTriggerRobot();
-        }
-
         function updateStatus() {
             var status = '';
             var isMyTurn = (game.turn() === playerColor);
@@ -303,7 +284,7 @@
             } else if (game.in_draw()) {
                 status = 'Fim de jogo! Empate.';
             } else {
-                status = isMyTurn ? 'Sua vez (' + (playerColor === 'w' ? 'Brancas' : 'Pretas') + ')' : 'Vez do Robô';
+                status = isMyTouchOrClickTurn = isMyTurn ? 'Sua vez (' + (playerColor === 'w' ? 'Brancas' : 'Pretas') + ')' : 'Vez do Robô';
                 if (game.in_check()) {
                     status += ' — ' + moveColor + ' em XEQUE!';
                 }
@@ -321,22 +302,29 @@
             selectedSquare = null;
             updateStatus();
 
-            // Se o jogador escolheu Pretas, o robô (Brancas) começa jogando
             if (playerColor === 'b') {
                 maybeTriggerRobot();
             }
         }
 
         var config = {
-            draggable: true,
+            draggable: false, // Desativado para priorizar o clique exato nas casas
             position: 'start',
-            onDrop: onDrop,
-            onSquareClick: onSquareClick,
             pieceTheme: 'https://chessboardjs.com/img/chesspieces/alpha/{piece}.png'
         };
 
         board = Chessboard('board', config);
-        
+
+        // Captura cliques em qualquer elemento da casa (inclusive na imagem da peça) em PC e Celular
+        $(document).on('click', '#board .square-55d63, #board img', function(e) {
+            e.stopPropagation();
+            var $squareDiv = $(this).hasClass('square-55d63') ? $(this) : $(this).closest('.square-55d63');
+            var square = $squareDiv.attr('data-square');
+            if (square) {
+                onSquareClick(square);
+            }
+        });
+
         // Eventos
         $('#resetBtn').on('click', resetGame);
         $('#playerColor').on('change', resetGame);
